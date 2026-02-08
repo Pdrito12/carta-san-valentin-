@@ -1,3 +1,4 @@
+@@ -0,0 +1,460 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -247,6 +248,46 @@
             pointer-events: none;
             text-align: center;
         }
+
+        /* Estilos para el input y la animación final */
+        #input-container {
+            position: fixed;
+            top: 65%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 301;
+            opacity: 0;
+            transition: opacity 1s;
+            display: none;
+        }
+
+        #love-input {
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            border: 2px solid #ff3366;
+            border-radius: 25px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            outline: none;
+            text-align: center;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .floating-word {
+            position: fixed;
+            color: #ff3366;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 150;
+            animation: floatUpWord 4s ease-out forwards;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes floatUpWord {
+            0% { opacity: 0; transform: translateY(0) scale(0.5); }
+            20% { opacity: 1; transform: translateY(-20px) scale(1.2); }
+            100% { opacity: 0; transform: translateY(-100px) scale(1); }
+        }
     </style>
 </head>
 <body>
@@ -265,13 +306,17 @@
     </div>
 
     <div id="video-container">
-        <video id="final-video" controls>
+        <video id="final-video" controls playsinline>
             <source src="Assets/1.mp4" type="video/mp4">
             Tu navegador no soporta videos.
         </video>
     </div>
 
     <div id="final-message">Feliz San Valentín</div>
+
+    <div id="input-container">
+        <input type="text" id="love-input" placeholder="Escribe 'te quiero'" autocomplete="off">
+    </div>
 
     <script>
         const card = document.getElementById('card');
@@ -329,10 +374,14 @@
             setTimeout(() => {
                 container.style.opacity = '1';
                 // Reproducir con audio
-                video.play().catch(e => {
-                    console.log("Autoplay bloqueado, intentando con interacción del usuario");
-                    // Si el autoplay falla, el usuario puede dar play manualmente
-                });
+                const playPromise = video.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(e => {
+                        // Fallback para móviles: si falla con sonido, reproducir en silencio
+                        video.muted = true;
+                        video.play();
+                    });
+                }
             }, 50);
 
             // Ocultar video automáticamente al terminar
@@ -343,6 +392,11 @@
                     // Mostrar mensaje final
                     const finalMsg = document.getElementById('final-message');
                     finalMsg.style.opacity = '1';
+                    
+                    // Mostrar input para escribir
+                    const inputCont = document.getElementById('input-container');
+                    inputCont.style.display = 'block';
+                    setTimeout(() => inputCont.style.opacity = '1', 100);
                 }, 2000);
             };
         }
@@ -373,6 +427,36 @@
             }, duration * 1000);
         }
 
+        // Lógica para detectar cuando escriben "te quiero"
+        const loveInput = document.getElementById('love-input');
+        loveInput.addEventListener('input', function() {
+            if (this.value.toLowerCase() === 'te quiero') {
+                this.disabled = true; // Evitar que escriban más
+                const inputCont = document.getElementById('input-container');
+                inputCont.style.opacity = '0'; // Desaparecer input
+                setTimeout(() => inputCont.style.display = 'none', 1000);
+
+                // Lanzar muchos corazones
+                for(let i=0; i<30; i++) {
+                    setTimeout(createHeart, i * 100);
+                }
+                // Lanzar palabras "Te Quiero" flotantes
+                for(let i=0; i<15; i++) {
+                    setTimeout(() => {
+                        const word = document.createElement('div');
+                        word.classList.add('floating-word');
+                        word.innerText = 'Te Quiero';
+                        word.style.left = Math.random() * 90 + 5 + 'vw';
+                        word.style.top = Math.random() * 80 + 10 + 'vh';
+                        word.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                        document.body.appendChild(word);
+                        setTimeout(() => word.remove(), 4000);
+                    }, i * 200);
+                }
+            }
+        });
+
     </script>
 </body>
 </html>
+
