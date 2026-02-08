@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Ti</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #050505;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* Fondo estrellado */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
+                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+            animation: twinkle 4s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            from { opacity: 0.5; }
+            to { opacity: 1; }
+        }
+
+        /* Contenedor de la carta */
+        .container {
+            position: relative;
+            width: 210px;
+            height: 140px;
+            cursor: pointer;
+            transition: transform 0.5s;
+            z-index: 10;
+        }
+
+        /* El Sobre (Carta Negra) */
+        .envelope {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: #1a1a1a;
+            border-radius: 5px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        /* Solapa superior */
+        .flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0; 
+            height: 0; 
+            border-left: 105px solid transparent;
+            border-right: 105px solid transparent;
+            border-top: 77px solid #2a2a2a;
+            transform-origin: top;
+            transition: transform 0.6s ease-in-out 2s, z-index 0.6s 2s;
+            z-index: 20;
+        }
+
+        /* Bolsillo frontal */
+        .pocket {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0; 
+            height: 0; 
+            border-left: 105px solid transparent;
+            border-right: 105px solid transparent;
+            border-bottom: 70px solid #222;
+            z-index: 15;
+        }
+
+        /* Solapas laterales (para cerrar completamente) */
+        .left-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 105px solid #1c1c1c;
+            border-top: 70px solid transparent;
+            border-bottom: 70px solid transparent;
+            z-index: 14;
+        }
+
+        .right-flap {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-right: 105px solid #1c1c1c;
+            border-top: 70px solid transparent;
+            border-bottom: 70px solid transparent;
+            z-index: 14;
+        }
+
+        /* La Hoja */
+        .paper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85%;
+            height: 80%;
+            background: #fff;
+            padding: 20px;
+            box-sizing: border-box;
+            border-radius: 3px;
+            transition: top 2s ease-in-out, height 2s ease-in-out, z-index 0s;
+            z-index: 12;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 10px;
+            color: #333;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .paper p {
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.5;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        /* Animaciones de apertura */
+        .container.open .flap {
+            transform: rotateX(180deg);
+            z-index: 5;
+            transition: transform 0.6s ease-in-out 0s, z-index 0.6s 0s;
+        }
+
+        .container.open .paper {
+            top: -50%;
+            height: 200px;
+            z-index: 16;
+            transition: top 2s ease-in-out, height 2s ease-in-out, z-index 0s 2s;
+        }
+
+        .container.open .paper p {
+            opacity: 1;
+            transition: opacity 1.5s ease-in-out 0.5s;
+        }
+
+        /* Animación de explosión */
+        .container.explode {
+            animation: boom 0.6s forwards;
+        }
+
+        @keyframes boom {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        /* Animación de sacudida/pop al abrir */
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* Corazones cayendo */
+        .heart {
+            position: fixed;
+            top: -10vh;
+            font-size: 2rem;
+            animation: fall linear forwards;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 100;
+            pointer-events: none;
+        }
+        
+        .heart span {
+            font-size: 10px;
+            color: white;
+            font-weight: bold;
+            margin-top: -5px;
+            text-shadow: 1px 1px 2px black;
+            white-space: nowrap;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(110vh) rotate(360deg); }
+        }
+
+        /* Contenedor del video final */
+        #video-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            opacity: 0;
+            transition: opacity 2s ease-in;
+        }
+
+        #video-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+
+        /* Mensaje final */
+        #final-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ff3366;
+            font-size: 3rem;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(255, 51, 102, 0.8);
+            opacity: 0;
+            transition: opacity 2s ease-in;
+            z-index: 300;
+            pointer-events: none;
+            text-align: center;
+        }
+
+        /* Estilos para el input y la animación final */
+        #input-container {
+            position: fixed;
+            top: 65%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 301;
+            opacity: 0;
+            transition: opacity 1s;
+            display: none;
+        }
+
+        #love-input {
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            border: 2px solid #ff3366;
+            border-radius: 25px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            outline: none;
+            text-align: center;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .floating-word {
+            position: fixed;
+            color: #ff3366;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 150;
+            animation: floatUpWord 4s ease-out forwards;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes floatUpWord {
+            0% { opacity: 0; transform: translateY(0) scale(0.5); }
+            20% { opacity: 1; transform: translateY(-20px) scale(1.2); }
+            100% { opacity: 0; transform: translateY(-100px) scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars"></div>
+
+    <div class="container" id="card">
+        <div class="envelope">
+            <div class="flap"></div>
+            <div class="pocket"></div>
+            <div class="left-flap"></div>
+            <div class="right-flap"></div>
+            <div class="paper">
+                <p>Hola, sabes no soy alguien que te diga todos los días un verdadero "te quiero", pero es algo que siempre pienso en mi cabeza para solo decirte lo tanto que te quiero ver feliz y cada momento solo deseo ver esa sonrisa que tanto quiero.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="video-container">
+        <video id="final-video" controls playsinline>
+            <source src="Assets/1.mp4" type="video/mp4">
+            Tu navegador no soporta videos.
+        </video>
+    </div>
+
+    <div id="final-message">Feliz San Valentín</div>
+
+    <div id="input-container">
+        <input type="text" id="love-input" placeholder="Escribe 'te quiero'" autocomplete="off">
+    </div>
+
+    <script>
+        const card = document.getElementById('card');
+        let isOpen = false;
+        let isExploded = false;
+
+        card.addEventListener('click', () => {
+            if (isExploded) return;
+
+            if (!isOpen) {
+                // Abrir carta
+                card.classList.add('open');
+                isOpen = true;
+
+                // Efecto explosivo al abrir
+                card.style.animation = 'pop 0.3s ease-out';
+                setTimeout(() => card.style.animation = '', 300);
+            } else {
+                // Cerrar y explotar
+                card.classList.remove('open');
+                
+                // Esperamos a que baje la hoja (2000ms) antes de explotar
+                setTimeout(() => {
+                    card.classList.add('explode');
+                    startHearts();
+                    isExploded = true;
+                }, 2000);
+            }
+        });
+
+        function startHearts() {
+            // Crear una ráfaga inicial
+            for(let i=0; i<50; i++) {
+                createHeart();
+            }
+            // Seguir creando corazones por unos segundos
+            let interval = setInterval(createHeart, 100);
+            setTimeout(() => {
+                clearInterval(interval);
+                // Esperar a que terminen de caer los corazones antes de mostrar el video
+                setTimeout(showVideo, 4000);
+            }, 5000);
+        }
+
+        function showVideo() {
+            const container = document.getElementById('video-container');
+            const video = document.getElementById('final-video');
+            
+            // Asegurar que el video NO esté en mute antes de mostrar
+            video.muted = false;
+            video.volume = 1.0;
+            
+            container.style.display = 'flex';
+            // Pequeña pausa para permitir que la transición CSS funcione
+            setTimeout(() => {
+                container.style.opacity = '1';
+                // Reproducir con audio
+                const playPromise = video.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(e => {
+                        // Fallback para móviles: si falla con sonido, reproducir en silencio
+                        video.muted = true;
+                        video.play();
+                    });
+                }
+            }, 50);
+
+            // Ocultar video automáticamente al terminar
+            video.onended = () => {
+                container.style.opacity = '0';
+                setTimeout(() => {
+                    container.style.display = 'none';
+                    // Mostrar mensaje final
+                    const finalMsg = document.getElementById('final-message');
+                    finalMsg.style.opacity = '1';
+                    
+                    // Mostrar input para escribir
+                    const inputCont = document.getElementById('input-container');
+                    inputCont.style.display = 'block';
+                    setTimeout(() => inputCont.style.opacity = '1', 100);
+                }, 2000);
+            };
+        }
+
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerHTML = '❤<span>te quiero</span>';
+            
+            // Colores aleatorios
+            const colors = ['#ff3366', '#ff0000', '#ff66b2', '#ff99cc', '#ffcccc', '#cc0052', '#ff4d4d'];
+            heart.style.color = colors[Math.floor(Math.random() * colors.length)];
+
+            // Posición y animación aleatoria
+            heart.style.left = Math.random() * 100 + 'vw';
+            const duration = Math.random() * 3 + 2; // entre 2 y 5 segundos
+            heart.style.animationDuration = duration + 's';
+            
+            // Tamaño aleatorio
+            const size = Math.random() * 30 + 15;
+            heart.style.fontSize = size + 'px';
+
+            document.body.appendChild(heart);
+
+            // Eliminar del DOM al terminar
+            setTimeout(() => {
+                heart.remove();
+            }, duration * 1000);
+        }
+
+        // Lógica para detectar cuando escriben "te quiero"
+        const loveInput = document.getElementById('love-input');
+        loveInput.addEventListener('input', function() {
+            if (this.value.toLowerCase() === 'te quiero') {
+                this.disabled = true; // Evitar que escriban más
+                const inputCont = document.getElementById('input-container');
+                inputCont.style.opacity = '0'; // Desaparecer input
+                setTimeout(() => inputCont.style.display = 'none', 1000);
+
+                // Lanzar muchos corazones
+                for(let i=0; i<30; i++) {
+                    setTimeout(createHeart, i * 100);
+                }
+                // Lanzar palabras "Te Quiero" flotantes
+                for(let i=0; i<15; i++) {
+                    setTimeout(() => {
+                        const word = document.createElement('div');
+                        word.classList.add('floating-word');
+                        word.innerText = 'Te Quiero';
+                        word.style.left = Math.random() * 90 + 5 + 'vw';
+                        word.style.top = Math.random() * 80 + 10 + 'vh';
+                        word.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                        document.body.appendChild(word);
+                        setTimeout(() => word.remove(), 4000);
+                    }, i * 200);
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>
